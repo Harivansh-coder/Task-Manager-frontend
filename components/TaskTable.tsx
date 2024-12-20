@@ -67,6 +67,11 @@ export const columns: ColumnDef<Task>[] = [
     enableHiding: false,
   },
   {
+    accessorKey: "id",
+    header: "ID",
+    cell: ({ row }) => <div className="lowercase">{row.getValue("id")}</div>,
+  },
+  {
     accessorKey: "title",
     header: "Status",
     cell: ({ row }) => (
@@ -126,56 +131,86 @@ export const columns: ColumnDef<Task>[] = [
   // },
 ];
 
+const priorityOptions = new Array(5).fill(0).map((_, i) => i + 1);
+
+type TaskFilters = {
+  status: string;
+  priority: number | null;
+};
+
 export default function TaskTable() {
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<TaskFilters>({
     status: "", // "pending" | "finished"
+    priority: null,
   });
 
-  // const query = useQuery({ queryKey: [filters], queryFn: getTask });
+  const query = useQuery({
+    queryKey: [filters],
+    queryFn: () => getTask(filters),
+    staleTime: 5000,
+    retry: false,
+  });
 
-  // // if (query.isLoading) {
-  // //   return <div>Loading...</div>;
-  // // }
-
-  // if (query.isError) {
-  //   console.error(query.error);
-  //   // todo toast
-  // }
-
-  // const [sorting, setSorting] = React.useState<SortingState>([]);
-  // const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-  //   []
-  // );
-  // const [columnVisibility, setColumnVisibility] =
-  //   React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
 
   const table = useReactTable({
-    data: [],
-    // data: query.data ?? [],
+    data: query.data ?? [],
     columns,
-    // onSortingChange: setSorting,
-    // onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    // getSortedRowModel: getSortedRowModel(),
-    // getFilteredRowModel: getFilteredRowModel(),
-    // onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     state: {
-      // sorting,
-      // columnFilters,
-      // columnVisibility,
       rowSelection,
     },
   });
 
+  async function deleteAll() {
+    console.log("delete all");
+
+    const ids = table
+      .getSelectedRowModel()
+      .rows.map((row) => row.getValue("id"));
+
+    // await deleteTask(ids);
+
+    // Refetch the data
+    query.refetch();
+    console.log("ids", ids);
+  }
+
   return (
     <div className="w-full p-6">
-      <div className="flex items-center py-4">
+      <div className="flex items-center gap-3 justify-end py-4">
+        <Button variant="destructive" className="" onClick={deleteAll}>
+          Delete All
+        </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
+            <Button variant="outline" className="">
+              Priority <ChevronDown />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {priorityOptions.map((priority) => (
+              <DropdownMenuCheckboxItem
+                key={priority}
+                className="capitalize"
+                checked={filters.priority === priority}
+                onCheckedChange={(value) =>
+                  setFilters({
+                    ...filters,
+                    priority: value ? priority : null,
+                  })
+                }
+              >
+                {priority}
+              </DropdownMenuCheckboxItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="">
               Status <ChevronDown />
             </Button>
           </DropdownMenuTrigger>
@@ -219,7 +254,7 @@ export default function TaskTable() {
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                     </TableHead>
                   );
@@ -238,7 +273,7 @@ export default function TaskTable() {
                     <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </TableCell>
                   ))}

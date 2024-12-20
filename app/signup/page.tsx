@@ -21,8 +21,8 @@ import { useRouter } from "next/navigation";
 
 const formSchema = z
   .object({
-    username: z.string().min(2, {
-      message: "Username must be at least 2 characters.",
+    name: z.string().min(2, {
+      message: "Name must be at least 2 characters.",
     }),
     email: z.string().email(),
     password: z.string().min(8, {
@@ -33,10 +33,14 @@ const formSchema = z
     }),
   })
 
-  .refine((data) => data.password === data.passwordConfirmation, {
-    path: ["passwordConfirmation"],
-    message: "Passwords do not match.",
-  });
+  .refine(
+    (data: { password: string; passwordConfirmation: string } | undefined) =>
+      data?.password === data?.passwordConfirmation,
+    {
+      path: ["passwordConfirmation"],
+      message: "Passwords do not match",
+    }
+  );
 
 export default function Signup() {
   const { toast } = useToast();
@@ -45,7 +49,7 @@ export default function Signup() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: "",
+      name: "",
       email: "",
       password: "",
       passwordConfirmation: "",
@@ -74,16 +78,22 @@ export default function Signup() {
   return (
     <div className="grid place-items-center h-full">
       <div className="mt-10 w-96 p-5 shadow">
+        <h1
+          className="text-2xl font-semibold text-center
+        "
+        >
+          Sign up
+        </h1>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormField
               control={form.control}
-              name="username"
+              name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Username</FormLabel>
+                  <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="JohnDoe" {...field} />
+                    <Input placeholder="John Doe" {...field} />
                   </FormControl>
                   <FormDescription>
                     This is your public display name.
@@ -137,6 +147,12 @@ export default function Signup() {
               )}
             />
             <Button type="submit">Submit</Button>
+
+            <div className="flex justify-center">
+              <a href="/login" className="text-blue-500">
+                Already have an account? Sign in
+              </a>
+            </div>
           </form>
         </Form>
       </div>

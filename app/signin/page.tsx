@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import Cookies from "js-cookie";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -28,7 +29,8 @@ const formSchema = z.object({
 
 export default function Signin() {
   const { toast } = useToast();
-  const setToken = authStore((state) => state.setToken);
+
+  const setToken = authStore((state: any) => state.setToken);
   const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -56,13 +58,21 @@ export default function Signin() {
 
     // Login Success
     // @ts-expect-error - no typ
-    setToken(res.data.token);
+    setToken(res.data.data.accessToken);
+
+    // store the token in a cookie
+    // @ts-expect-error - no typ
+    Cookies.set("accessToken", res.data.data.accessToken, {
+      expires: 7,
+    });
+
     router.push("/");
   }
 
   return (
     <div className="grid place-items-center h-full">
       <div className="mt-10 w-96 p-5 shadow">
+        <div className="text-2xl font-semibold text-center">Sign In</div>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormField
@@ -95,6 +105,12 @@ export default function Signin() {
             />
 
             <Button type="submit">Login</Button>
+
+            <div className="flex justify-center">
+              <a href="/signup" className="text-blue-500">
+                Don&apos;t have an account? Sign up
+              </a>
+            </div>
           </form>
         </Form>
       </div>
