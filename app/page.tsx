@@ -1,5 +1,5 @@
 import Dashboard from "@/components/DashBoard";
-import TaskTable from "@/components/TaskTable";
+import Tasks from "@/components/Tasks/Tasks";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function Page() {
@@ -14,7 +14,7 @@ export default function Page() {
           <Dashboard />
         </TabsContent>
         <TabsContent value="tasklist">
-          <TaskTable />
+          <Tasks />
         </TabsContent>
       </Tabs>
     </div>

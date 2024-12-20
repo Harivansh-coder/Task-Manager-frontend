@@ -153,7 +153,7 @@ export default function Signup() {
             <Button type="submit">Submit</Button>
 
             <div className="flex justify-center">
-              <a href="/login" className="text-blue-500">
+              <a href="/signin" className="text-blue-500">
                 Already have an account? Sign in
               </a>
             </div>
