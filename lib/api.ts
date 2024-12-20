@@ -321,3 +321,46 @@ export async function getTask(queries: any): Promise<Task[]> {
     return tempData;
   }
 }
+
+export type Analytics = {
+  totalTasks: number;
+  finishedTasks: number;
+  pendingTasks: number;
+  percentageTasksfinished: number;
+  percentageTasksPending: number;
+  averageCompletionTime: number;
+  totalLapsedTime: number;
+  totalEstimatedTime: number;
+};
+
+export async function getAnalytics(): Promise<Analytics> {
+  const token = authStore.getState().token;
+
+  if (!token) {
+    throw new Error("Unauthorized");
+  }
+
+  try {
+    const response = await fetch(`${apiURL}/analytics/tasks`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return await response.json();
+  } catch (error) {
+    console.error(error);
+    // Uncomment the following line to return a mock response
+    // throw new Error("Something went wrong");
+    return {
+      totalTasks: 0,
+      finishedTasks: 0,
+      pendingTasks: 0,
+      percentageTasksfinished: 0,
+      percentageTasksPending: 0,
+      averageCompletionTime: 0,
+      totalLapsedTime: 0,
+      totalEstimatedTime: 0,
+    };
+  }
+}
