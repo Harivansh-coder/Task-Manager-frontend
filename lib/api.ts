@@ -284,6 +284,32 @@ export async function deleteTask(id: string): Promise<void> {
   }
 }
 
+// delete multiple tasks
+export async function deleteMultipleTask(ids: string[]): Promise<void> {
+  const token = authStore.getState().token;
+
+  if (!token) {
+    throw new Error("Unauthorized");
+  }
+
+  try {
+    await fetch(`${apiURL}/tasks`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        taskIds: ids,
+      }),
+    });
+  } catch (error) {
+    console.error(error);
+    // Uncomment the following line to return a mock response
+    // throw new Error("Something went wrong");
+  }
+}
+
 export async function getAnalytics(): Promise<Analytics> {
   const token = authStore.getState().token;
 

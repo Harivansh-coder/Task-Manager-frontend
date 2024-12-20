@@ -4,13 +4,13 @@ import * as React from "react";
 import {
   ColumnDef,
   // ColumnFiltersState,
-  // SortingState,
+  SortingState,
   // VisibilityState,
   flexRender,
   getCoreRowModel,
   // getFilteredRowModel,
   getPaginationRowModel,
-  // getSortedRowModel,
+  getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 import //  ArrowUpDown,
@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/table";
 import { Task } from "@/lib/api";
 import Link from "next/link";
+import { ArrowUpDown } from "lucide-react";
 
 export const columns: ColumnDef<Task>[] = [
   {
@@ -76,7 +77,17 @@ export const columns: ColumnDef<Task>[] = [
   },
   {
     accessorKey: "priority",
-    header: () => <div className="text-right">Priority</div>,
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Priority
+          <ArrowUpDown />
+        </Button>
+      );
+    },
     cell: ({ row }) => {
       const priority = parseFloat(row.getValue("priority"));
 
@@ -85,7 +96,17 @@ export const columns: ColumnDef<Task>[] = [
   },
   {
     accessorKey: "startTime",
-    header: "Start Time",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Start Time
+          <ArrowUpDown />
+        </Button>
+      );
+    },
     cell: ({ row }) => {
       // format the date time for human readability
       const formattedStartTime = new Intl.DateTimeFormat("en-US", {
@@ -149,15 +170,19 @@ type TaskTableProps = {
 
 export default function TaskTable({ data, setSelectedRows }: TaskTableProps) {
   const [rowSelection, setRowSelection] = React.useState({});
+  const [sorting, setSorting] = React.useState<SortingState>([]);
 
   const table = useReactTable({
     data,
     columns,
+    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onRowSelectionChange: setRowSelection,
+    getSortedRowModel: getSortedRowModel(),
     state: {
       rowSelection,
+      sorting,
     },
   });
 
