@@ -295,21 +295,24 @@ export type Task = {
 export async function getTask(queries: any): Promise<Task[]> {
   const token = authStore.getState().token;
 
-  // if (!token) {
-  //   alert("You need to login first");
-  //   throw new Error("You need to login first");
-  // }
+  if (!token) {
+    throw new Error("Unauthorized");
+  }
+
+  console.log("token", token);
 
   const query = new URLSearchParams(queries).toString();
+
   try {
-    // const response = await fetch(`${apiURL}/tasks?${query}`, {
-    //   headers: {
-    //     Authorization: `Bearer ${token}`,
-    //   },
-    // });
-    // console.log("query", query);
+    const response = await fetch(`${apiURL}/tasks?${query}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log("query", query);
 
     // return await response.json();
+    console.log("response", await response.json());
     return tempData;
   } catch (error) {
     console.error(error);

@@ -8,6 +8,12 @@ type AuthStore = {
 
 export const authStore = create<AuthStore>((set) => ({
   token: null,
-  setToken: (token) => set({ token }),
-  logout: () => set({ token: null }),
+  setToken: (token) => {
+    localStorage.setItem("token", token);
+    set({ token });
+  },
+  logout: () => {
+    localStorage.removeItem("token");
+    set({ token: null });
+  },
 }));

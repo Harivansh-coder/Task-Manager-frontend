@@ -3,9 +3,9 @@
 import * as React from "react";
 import {
   ColumnDef,
-  ColumnFiltersState,
-  SortingState,
-  VisibilityState,
+  // ColumnFiltersState,
+  // SortingState,
+  // VisibilityState,
   flexRender,
   getCoreRowModel,
   // getFilteredRowModel,
@@ -254,7 +254,7 @@ export default function TaskTable() {
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext(),
+                            header.getContext()
                           )}
                     </TableHead>
                   );
@@ -273,7 +273,7 @@ export default function TaskTable() {
                     <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext(),
+                        cell.getContext()
                       )}
                     </TableCell>
                   ))}

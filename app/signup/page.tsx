@@ -123,7 +123,7 @@ export default function Signup() {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input placeholder="password" {...field} />
+                    <Input placeholder="password" type="password" {...field} />
                   </FormControl>
                   <FormDescription>This is your password</FormDescription>
                   <FormMessage />
@@ -137,7 +137,11 @@ export default function Signup() {
                 <FormItem>
                   <FormLabel>Confirm Password</FormLabel>
                   <FormControl>
-                    <Input placeholder="confirm password" {...field} />
+                    <Input
+                      placeholder="confirm password"
+                      type="password"
+                      {...field}
+                    />
                   </FormControl>
                   <FormDescription>
                     Please confirm your password.
