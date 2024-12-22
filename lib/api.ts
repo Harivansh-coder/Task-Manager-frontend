@@ -22,7 +22,7 @@ export async function signUp(data: unknown): Promise<signupReturn> {
     if (!response.ok) {
       return {
         status: "error",
-        message: resData.message,
+        message: resData.errors.message,
         data: null,
       };
     }
@@ -56,7 +56,7 @@ export async function signIn(data: unknown): Promise<signupReturn> {
     if (!response.ok) {
       return {
         status: "error",
-        message: resData.message,
+        message: resData.errors.message,
         data: null,
       };
     }
