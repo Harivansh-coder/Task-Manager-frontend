@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { getAnalytics } from "@/lib/api";
+import Loading from "@/components/Loading";
 
 interface Analytics {
   totalTasks: number;
@@ -54,7 +55,8 @@ const Dashboard: React.FC = () => {
     fetchAnalytics();
   }, []);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <Loading />;
+
   if (error) return <p className="text-red-500">{error}</p>;
 
   if (!analytics) return <p>No analytics data available.</p>;

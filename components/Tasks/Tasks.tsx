@@ -1,25 +1,29 @@
 "use client";
-import { deleteMultipleTask, getTask } from "@/lib/api";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { getTask, deleteMultipleTask } from "@/lib/api";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import TaskTable from "./TaskTable";
-import { Button } from "../ui/button";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Button } from "../ui/button";
+import { CreateTaskDialog } from "../CreateTaskDialog";
 import { ChevronDown } from "lucide-react";
-import { TaskDialog } from "../TaskDialog";
+import { useToast } from "../hooks/use-toast";
+import Loading from "../Loading";
 
 type TaskFilters = {
   status: string;
   priority: number | null;
 };
 
+type RowSelection = Record<string, boolean>;
+
 export default function Tasks() {
-  const queryClient = useQueryClient();
+  // const queryClient = useQueryClient();
 
   const [filters, setFilters] = useState<TaskFilters>({
     status: "",
@@ -27,6 +31,10 @@ export default function Tasks() {
   });
 
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
+  const [rowSelection, setRowSelection] = useState<RowSelection>({});
+
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
 
   const priorityOptions = new Array(5).fill(0).map((_, i) => i + 1);
 
@@ -39,26 +47,41 @@ export default function Tasks() {
 
   async function deleteAll() {
     try {
-      const remainingTasks = query.data?.filter(
-        (task) => !selectedRows.includes(task._id)
-      );
-      queryClient.setQueryData(["tasks", filters], remainingTasks); // Optimistic update
-
-      await deleteMultipleTask(selectedRows); // Batch delete API
+      setLoading(true);
+      await deleteMultipleTask(selectedRows);
+      query.refetch();
       setSelectedRows([]);
+      setRowSelection({});
+
+      toast({
+        title: "Success",
+        description: "Tasks deleted successfully",
+        variant: "default",
+      });
+
+      setLoading(false);
     } catch (error) {
-      console.error("Error deleting tasks", error);
-      alert("Failed to delete tasks");
+      console.error(error);
+      toast({
+        title: "Error",
+        description: "An error occurred while deleting tasks",
+        variant: "destructive",
+      });
+      setLoading(false);
     }
   }
 
   return (
     <div className="w-full p-6">
       <div className="flex items-center gap-3 justify-end py-4">
-        <TaskDialog />
+        <CreateTaskDialog onSuccess={() => query.refetch()} />
 
-        <Button variant="destructive" onClick={deleteAll}>
-          Delete All
+        <Button
+          variant="destructive"
+          onClick={deleteAll}
+          disabled={selectedRows.length === 0}
+        >
+          Delete Selected
         </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -115,7 +138,14 @@ export default function Tasks() {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <TaskTable data={query.data ?? []} setSelectedRows={setSelectedRows} />
+
+      {loading && <Loading />}
+      <TaskTable
+        data={query.data ?? []}
+        setSelectedRows={setSelectedRows}
+        rowSelection={rowSelection || {}}
+        setRowSelection={setRowSelection}
+      />
     </div>
   );
 }

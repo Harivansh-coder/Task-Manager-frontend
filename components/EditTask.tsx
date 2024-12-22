@@ -7,12 +7,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { getTaskById, updateTask } from "@/lib/api";
+import { useToast } from "@/components/hooks/use-toast";
 
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import Loading from "@/components/Loading";
 
 export default function EditTask() {
   const search = useSearchParams();
   const id = search.get("id");
+
+  const { toast } = useToast();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [task, setTask] = useState<any>(null);
@@ -59,19 +63,28 @@ export default function EditTask() {
       const updatedTask = await updateTask(id, {
         title,
         description,
-        endTime: new Date(endTime).toISOString(),
+        endTime: endTime ? new Date(task.endTime).toISOString() : "",
         priority,
         status, // Use controlled status state
       });
+
       setTask(updatedTask); // Update the state with the new task data
-      alert("Task updated successfully!");
+      toast({
+        title: "Success",
+        description: "Task updated successfully",
+      });
     } catch (err) {
       console.error("Failed to update task", err);
-      alert("Failed to update task. Please try again.");
+      toast({
+        title: "Error",
+        description: "Failed to update task",
+        variant: "destructive",
+      });
     }
   }
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <Loading />;
+
   if (error) return <p>{error}</p>;
   if (!task) return <p>No task found</p>;
 

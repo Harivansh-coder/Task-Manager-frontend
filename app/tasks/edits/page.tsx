@@ -3,10 +3,11 @@
 
 import { Suspense } from "react";
 import EditTask from "@/components/EditTask";
+import Loading from "@/components/Loading";
 
 export default function Page() {
   return (
-    <Suspense fallback={<p>Loading...</p>}>
+    <Suspense fallback={<Loading />}>
       <EditTask />
     </Suspense>
   );

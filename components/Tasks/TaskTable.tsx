@@ -3,21 +3,13 @@
 import * as React from "react";
 import {
   ColumnDef,
-  // ColumnFiltersState,
   SortingState,
-  // VisibilityState,
   flexRender,
   getCoreRowModel,
-  // getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import //  ArrowUpDown,
-// ChevronDown,
-// MoreHorizontal
-"lucide-react";
-
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -108,7 +100,6 @@ export const columns: ColumnDef<Task>[] = [
       );
     },
     cell: ({ row }) => {
-      // format the date time for human readability
       const formattedStartTime = new Intl.DateTimeFormat("en-US", {
         dateStyle: "medium",
         timeStyle: "short",
@@ -121,7 +112,6 @@ export const columns: ColumnDef<Task>[] = [
     accessorKey: "dueTime",
     header: "Due Time",
     cell: ({ row }) => {
-      // format the date time for human readability
       const formattedDueTime = new Intl.DateTimeFormat("en-US", {
         dateStyle: "medium",
         timeStyle: "short",
@@ -134,8 +124,6 @@ export const columns: ColumnDef<Task>[] = [
     accessorKey: "endTime",
     header: "End Time",
     cell: ({ row }) => {
-      // format the date time for human readability
-
       const formattedEndTime = row.getValue("endTime")
         ? new Intl.DateTimeFormat("en-US", {
             dateStyle: "medium",
@@ -156,7 +144,6 @@ export const columns: ColumnDef<Task>[] = [
   {
     accessorKey: "actions",
     header: "Actions",
-    // cell: ({ row }) => <TaskEditDialog id={row.getValue("_id")} />,
     cell: ({ row }) => (
       <Link href={`/tasks/edits?id=${row.getValue("_id")}`}>Edit</Link>
     ),
@@ -166,10 +153,18 @@ export const columns: ColumnDef<Task>[] = [
 type TaskTableProps = {
   data: Task[];
   setSelectedRows: (ids: string[]) => void;
+  rowSelection: Record<string, boolean>;
+  setRowSelection: React.Dispatch<
+    React.SetStateAction<Record<string, boolean>>
+  >;
 };
 
-export default function TaskTable({ data, setSelectedRows }: TaskTableProps) {
-  const [rowSelection, setRowSelection] = React.useState({});
+export default function TaskTable({
+  data,
+  setSelectedRows,
+  rowSelection,
+  setRowSelection,
+}: TaskTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
   const table = useReactTable({
@@ -190,6 +185,12 @@ export default function TaskTable({ data, setSelectedRows }: TaskTableProps) {
     setSelectedRows(
       table.getSelectedRowModel().rows.map((row) => row.getValue("_id"))
     );
+
+    console.log(
+      " table.getSelectedRowModel().rows",
+      table.getSelectedRowModel().rows
+    );
+    console.log("rowSelection", rowSelection);
   }, [rowSelection, setSelectedRows, table]);
 
   return (

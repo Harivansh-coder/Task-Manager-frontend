@@ -18,6 +18,8 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/hooks/use-toast";
 import { signUp } from "@/lib/api";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import Loading from "@/components/Loading";
 
 const formSchema = z
   .object({
@@ -45,6 +47,7 @@ const formSchema = z
 export default function Signup() {
   const { toast } = useToast();
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -57,6 +60,7 @@ export default function Signup() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    setLoading(true);
     const res = await signUp(values);
     if (res.status === "error") {
       toast({
@@ -64,6 +68,7 @@ export default function Signup() {
         description: res.message,
         variant: "destructive",
       });
+      setLoading(false);
       return;
     }
 
@@ -72,11 +77,15 @@ export default function Signup() {
       title: "Success",
       description: "You have successfully signed up.",
     });
+
+    setLoading(false);
     router.push("/login");
   }
 
   return (
     <div className="grid place-items-center h-full">
+      {loading && <Loading />}
+
       <div className="mt-10 w-96 p-5 shadow">
         <h1
           className="text-2xl font-semibold text-center

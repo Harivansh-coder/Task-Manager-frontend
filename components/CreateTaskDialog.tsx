@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createTask } from "@/lib/api";
 
-export function TaskDialog() {
+export function CreateTaskDialog(props: { onSuccess: () => void }) {
   const [open, setOpen] = useState(false); // Dialog open state
 
   // Save the task to the database
@@ -49,6 +49,9 @@ export function TaskDialog() {
       dueTime: dueDateTime.toISOString(),
       priority: parseInt(priority),
     });
+
+    // Refetch the tasks after task creation
+    props.onSuccess();
 
     // Close the dialog after task creation
     setOpen(false);

@@ -21,6 +21,8 @@ import { useToast } from "@/components/hooks/use-toast";
 import { signIn } from "@/lib/api";
 import { authStore } from "@/lib/stores/authStore";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import Loading from "@/components/Loading";
 const formSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8, {
@@ -30,6 +32,8 @@ const formSchema = z.object({
 
 export default function Signin() {
   const { toast } = useToast();
+
+  const [loading, setLoading] = useState(false);
 
   const setToken = authStore((state: any) => state.setToken);
   const router = useRouter();
@@ -42,6 +46,7 @@ export default function Signin() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    setLoading(true);
     const res = await signIn(values);
     if (res.status === "error") {
       toast({
@@ -49,6 +54,7 @@ export default function Signin() {
         description: res.message,
         variant: "destructive",
       });
+      setLoading(false);
       return;
     }
 
@@ -67,12 +73,16 @@ export default function Signin() {
       expires: 7,
     });
 
+    setLoading(false);
+
     router.push("/");
   }
 
   return (
     <div className="grid place-items-center h-full">
       <div className="mt-10 w-96 p-5 shadow">
+        {loading && <Loading />}
+
         <div className="text-2xl font-semibold text-center">Sign In</div>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
