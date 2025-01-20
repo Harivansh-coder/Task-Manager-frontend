@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { getTask, Task } from "../lib/api";
+import { getTask, updateTask } from "../lib/api";
 
 function EditModal({ id }: { id: string }) {
-  const [task, setTask] = useState<Task | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [task, setTask] = useState<any>(null);
 
   useEffect(() => {
     console.log("useeffect called");
@@ -15,6 +16,11 @@ function EditModal({ id }: { id: string }) {
         .catch((e) => console.error(e));
     }
   }, [id]);
+
+  const handleStateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(e.target.id, e.target.value);
+    setTask({ ...task, [e.target.id]: e.target.value });
+  };
 
   const handleTaskUpdate = (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,6 +36,13 @@ function EditModal({ id }: { id: string }) {
     if (task) {
       const updatedTask = { ...task, title, description, dueTime, priority };
       console.log(updatedTask);
+
+      updateTask(updatedTask, id)
+        .then((data) => {
+          console.log(data);
+          window.location.reload();
+        })
+        .catch((e) => console.error(e));
     }
   };
 
@@ -50,7 +63,8 @@ function EditModal({ id }: { id: string }) {
             <input
               type="text"
               id="title"
-              value={task?.title}
+              value={task?.title || ""}
+              onChange={handleStateChange}
               className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-900"
             />
           </div>
@@ -64,10 +78,30 @@ function EditModal({ id }: { id: string }) {
             <input
               type="text"
               id="description"
-              value={task?.description}
+              value={task?.description || ""}
+              onChange={handleStateChange}
               className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-900"
             />
           </div>
+
+          <div className="mb-4">
+            <label
+              htmlFor="startTime"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Start Time
+            </label>
+            <input
+              type="date"
+              id="startTime"
+              value={new Date().toISOString().split("T")[0]}
+              readOnly
+              onChange={handleStateChange}
+              min={new Date().toISOString().split("T")[0]}
+              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+            />
+          </div>
+
           <div className="mb-4">
             <label
               htmlFor="dueTime"
@@ -78,7 +112,12 @@ function EditModal({ id }: { id: string }) {
             <input
               type="date"
               id="dueTime"
-              value={task?.dueTime}
+              value={
+                task?.dueTime
+                  ? new Date(task.dueTime).toISOString().split("T")[0]
+                  : new Date().toISOString().split("T")[0]
+              }
+              onChange={handleStateChange}
               min={new Date().toISOString().split("T")[0]}
               className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-900"
             />
@@ -95,7 +134,8 @@ function EditModal({ id }: { id: string }) {
               id="priority"
               min={0}
               max={5}
-              value={task?.priority}
+              value={task?.priority || 0}
+              onChange={handleStateChange}
               className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-900"
             />
           </div>

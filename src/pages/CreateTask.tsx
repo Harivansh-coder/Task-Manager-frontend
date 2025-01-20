@@ -2,19 +2,24 @@ import { useState } from "react";
 import { createTask } from "../lib/api";
 
 function CreateTask() {
-  const [{ title, description, dueTime, priority }, setTask] = useState({
+  const [{ title, description, endTime, priority }, setTask] = useState({
     title: "",
     description: "",
-    dueTime: "",
+    endTime: "",
     priority: 0,
   });
 
   const handleCreateTask = (e: React.FormEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
-    console.log(title, description, dueTime, priority);
+    console.log(title, description, endTime, priority);
 
-    createTask({ title, description, dueTime, priority })
+    if (!title || !description || !endTime || !priority) {
+      alert(`Please fill all the fields`);
+      return;
+    }
+
+    createTask({ title, description, dueTime: endTime, priority })
       .then((response) => {
         if (response.ok) {
           console.log("Task created");
@@ -22,7 +27,7 @@ function CreateTask() {
           setTask({
             title: "",
             description: "",
-            dueTime: "",
+            endTime: "",
             priority: 0,
           });
         }
@@ -49,6 +54,7 @@ function CreateTask() {
             <input
               type="text"
               id="title"
+              required
               value={title}
               onChange={(e) =>
                 setTask((prev) => ({ ...prev, title: e.target.value }))
@@ -66,6 +72,7 @@ function CreateTask() {
             <input
               type="text"
               id="description"
+              required
               value={description}
               onChange={(e) =>
                 setTask((prev) => ({ ...prev, description: e.target.value }))
@@ -75,17 +82,19 @@ function CreateTask() {
           </div>
           <div className="mb-4">
             <label
-              htmlFor="dueTime"
+              htmlFor="endTime"
               className="block text-sm font-medium text-gray-700"
             >
               Due Time
             </label>
             <input
               type="date"
-              id="dueTime"
-              value={dueTime}
+              id="endTime"
+              required
+              value={endTime}
+              min={new Date().toISOString().split("T")[0]}
               onChange={(e) =>
-                setTask((prev) => ({ ...prev, dueTime: e.target.value }))
+                setTask((prev) => ({ ...prev, endTime: e.target.value }))
               }
               className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-900"
             />
@@ -102,6 +111,7 @@ function CreateTask() {
               id="priority"
               min={0}
               max={5}
+              required
               value={priority}
               onChange={(e) =>
                 setTask((prev) => ({ ...prev, priority: +e.target.value }))

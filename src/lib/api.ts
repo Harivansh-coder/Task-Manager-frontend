@@ -4,6 +4,7 @@ export type Task = {
   _id: string;
   title: string;
   description: string;
+  startTime?: string;
   dueTime: string;
   userId: number;
   priority: number;
@@ -48,12 +49,13 @@ export async function createTask(task: Partial<Task>) {
   }
 }
 
-export async function updateTask(task: Task, id: string) {
+export async function updateTask(task: Partial<Task>, id: string) {
   try {
     const response = await fetch(`${API_URL}/tasks/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
       body: JSON.stringify(task),
     });
@@ -71,6 +73,9 @@ export async function deleteTask(id: string) {
   try {
     const response = await fetch(`${API_URL}/tasks/${id}`, {
       method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
     });
     if (!response.ok) {
       throw new Error("Something went wrong");

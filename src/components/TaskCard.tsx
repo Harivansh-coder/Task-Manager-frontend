@@ -4,6 +4,7 @@ import Modal from "@mui/material/Modal";
 import { useState } from "react";
 import EditModal from "./EditModal";
 import { Box } from "@mui/material";
+import { deleteTask } from "../lib/api";
 
 const style = {
   position: "absolute",
@@ -42,6 +43,12 @@ function TaskCard({
 
   const handleDelete = () => {
     console.log(`Delete task with id: ${id}`);
+    deleteTask(id)
+      .then(() => {
+        console.log("Task deleted");
+        window.location.reload();
+      })
+      .catch((e) => console.error(e));
   };
 
   return (
